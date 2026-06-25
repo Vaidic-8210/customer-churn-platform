@@ -1,0 +1,566 @@
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+New Prediction
+</title>
+
+<link
+rel="stylesheet"
+href="css/styles.css">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<main class="page">
+
+<div class="page-head">
+
+<h1>
+Customer Churn Prediction
+</h1>
+
+<p>
+Enter customer information and generate prediction
+</p>
+
+</div>
+
+<form
+id="predictForm"
+class="card">
+
+<div class="form-section">
+
+<div class="form-section__title">
+Personal Information
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+<label>Customer Name</label>
+
+<input
+required
+type="text"
+name="customerName">
+</div>
+
+<div class="field">
+<label>Gender</label>
+
+<select name="gender">
+
+<option>Female</option>
+<option>Male</option>
+
+</select>
+</div>
+
+<div class="field">
+<label>Senior Citizen</label>
+
+<select name="senior">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Partner
+</label>
+
+<select
+name="partner">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Dependents
+</label>
+
+<select
+name="dependents">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Tenure
+</label>
+
+<input
+required
+type="number"
+name="tenure"
+value="12">
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="form-section">
+
+<div class="form-section__title">
+Services
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>
+Phone Service
+</label>
+
+<select
+name="phoneService">
+
+<option>Yes</option>
+<option>No</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Internet Service
+</label>
+
+<select
+name="internetService">
+
+<option>
+Fiber optic
+</option>
+
+<option>
+DSL
+</option>
+
+<option>
+No
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Online Security
+</label>
+
+<select
+name="onlineSecurity">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Online Backup
+</label>
+
+<select
+name="onlineBackup">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Device Protection
+</label>
+
+<select
+name="deviceProtection">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Tech Support
+</label>
+
+<select
+name="techSupport">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Streaming TV
+</label>
+
+<select
+name="streamingTv">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Streaming Movies
+</label>
+
+<select
+name="streamingMovies">
+
+<option>No</option>
+<option>Yes</option>
+
+</select>
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="form-section">
+
+<div class="form-section__title">
+
+Billing
+
+</div>
+
+<div class="form-grid">
+
+<div class="field">
+
+<label>
+Contract
+</label>
+
+<select
+name="contract">
+
+<option>
+Month-to-month
+</option>
+
+<option>
+One year
+</option>
+
+<option>
+Two year
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Paperless Billing
+</label>
+
+<select
+name="paperlessBilling">
+
+<option>Yes</option>
+<option>No</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Payment Method
+</label>
+
+<select
+name="paymentMethod">
+
+<option>
+Electronic check
+</option>
+
+<option>
+Mailed check
+</option>
+
+<option>
+Bank transfer
+</option>
+
+<option>
+Credit card
+</option>
+
+</select>
+
+</div>
+
+<div class="field">
+
+<label>
+Monthly Charges
+</label>
+
+<input
+required
+type="number"
+step="0.01"
+name="monthlyCharges"
+value="79.90">
+
+</div>
+
+<div class="field">
+
+<label>
+Total Charges
+</label>
+
+<input
+required
+type="number"
+step="0.01"
+name="totalCharges"
+value="958.80">
+
+</div>
+
+</div>
+
+</div>
+
+
+<div class="form-actions">
+
+<button
+type="reset"
+class="btn btn--ghost">
+
+Reset
+
+</button>
+
+<button
+id="submitBtn"
+type="submit"
+class="btn btn--primary">
+
+Predict
+
+</button>
+
+</div>
+
+</form>
+
+</main>
+
+
+<script src="js/common.js"></script>
+
+<script>
+
+buildNavbar(
+"new"
+);
+
+const form=
+document.getElementById(
+"predictForm"
+);
+
+form.addEventListener(
+
+"submit",
+
+async function(e){
+
+e.preventDefault();
+
+const btn=
+document.getElementById(
+"submitBtn"
+);
+
+btn.disabled=true;
+
+btn.innerHTML=
+"Predicting...";
+
+try{
+
+const formData=
+
+Object.fromEntries(
+
+new FormData(
+form
+).entries()
+
+);
+
+const response=
+
+await fetch(
+
+"http://localhost:5000/api/predict",
+
+{
+
+method:
+"POST",
+
+headers:{
+"Content-Type":
+"application/json"
+},
+
+body:
+
+JSON.stringify(
+formData
+)
+
+}
+
+);
+
+const result=
+
+await response.json();
+
+if(
+!result.success
+){
+
+throw new Error();
+
+}
+
+sessionStorage.setItem(
+
+"churnResult",
+
+JSON.stringify(
+
+{
+
+customer:
+result.customer,
+
+prediction:
+result.prediction,
+
+score:
+result.score,
+
+category:
+result.category
+
+}
+
+)
+
+);
+
+window.location.href=
+
+"result.html";
+
+}
+
+catch(error){
+
+alert(
+"Prediction Failed"
+);
+
+btn.disabled=false;
+
+btn.innerHTML=
+"Predict";
+
+}
+
+}
+
+);
+
+</script>
+
+</body>
+
+</html>
+```

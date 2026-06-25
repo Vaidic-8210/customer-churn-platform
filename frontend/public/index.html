@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Dashboard | Customer Churn Prediction
+</title>
+
+<link
+rel="stylesheet"
+href="css/styles.css">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<main class="page">
+
+<section class="hero">
+
+<h1>
+Customer Churn Prediction Platform
+</h1>
+
+<p>
+Predict customer churn using machine learning and identify customers at risk.
+</p>
+
+<div class="hero__actions">
+
+<a
+href="new-prediction.html"
+class="btn btn--light">
+
+New Prediction
+
+</a>
+
+<a
+href="history.html"
+class="btn btn--light">
+
+Prediction History
+
+</a>
+
+<a
+href="analytics.html"
+class="btn btn--light">
+
+Analytics
+
+</a>
+
+</div>
+
+</section>
+
+
+<section
+class="kpi-grid"
+id="kpiGrid">
+
+<div class="loading">
+Loading dashboard...
+</div>
+
+</section>
+
+
+<section class="cols-2">
+
+<div class="card">
+
+<div class="card__head">
+
+<h2>
+Recent Predictions
+</h2>
+
+</div>
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>
+Customer
+</th>
+
+<th>
+Risk Score
+</th>
+
+<th>
+Prediction
+</th>
+
+<th>
+Date
+</th>
+
+</tr>
+
+</thead>
+
+<tbody
+id="recentBody">
+
+<tr>
+
+<td colspan="4">
+
+Loading...
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="card__head">
+
+<h2>
+Business Summary
+</h2>
+
+</div>
+
+<div class="summary-stat">
+
+<span>
+Customer Retention
+</span>
+
+<span>
+73.6%
+</span>
+
+</div>
+
+<div class="summary-stat">
+
+<span>
+Revenue At Risk
+</span>
+
+<span>
+$184,200
+</span>
+
+</div>
+
+<div class="summary-stat">
+
+<span>
+Model Accuracy
+</span>
+
+<span>
+92.7%
+</span>
+
+</div>
+
+<div class="summary-stat">
+
+<span>
+Predictions
+</span>
+
+<span id="totalPred">
+
+0
+
+</span>
+
+</div>
+
+<a
+href="analytics.html"
+class="btn btn--primary mt-24 w-100">
+
+View Analytics
+
+</a>
+
+</div>
+
+</section>
+
+</main>
+
+
+<script src="js/common.js"></script>
+
+<script>
+
+buildNavbar(
+"dashboard"
+);
+
+function renderKpis(data){
+
+const cards=[
+
+{
+label:"Total Predictions",
+value:data.totalPredictions,
+icon:ICONS.chart
+},
+
+{
+label:"High Risk",
+value:data.highRisk,
+icon:ICONS.alert
+},
+
+{
+label:"Low Risk",
+value:data.lowRisk,
+icon:ICONS.shield
+},
+
+{
+label:"Average Score",
+value:data.averageRiskScore+"%",
+icon:ICONS.gauge
+}
+
+];
+
+document
+.getElementById(
+"kpiGrid"
+)
+.innerHTML=
+
+cards.map(card=>`
+
+<div class="kpi">
+
+<div class="kpi__top">
+
+<div class="kpi__icon">
+
+${card.icon}
+
+</div>
+
+</div>
+
+<div class="kpi__label">
+
+${card.label}
+
+</div>
+
+<div class="kpi__value">
+
+${card.value}
+
+</div>
+
+</div>
+
+`).join("");
+
+document
+.getElementById(
+"totalPred"
+)
+.textContent=
+data.totalPredictions;
+
+}
+
+
+function renderRecent(rows){
+
+const body=
+document
+.getElementById(
+"recentBody"
+);
+
+if(!rows.length){
+
+body.innerHTML=
+
+`
+
+<tr>
+
+<td colspan="4">
+
+No records
+
+</td>
+
+</tr>
+
+`;
+
+return;
+
+}
+
+body.innerHTML=
+
+rows.map(row=>`
+
+<tr>
+
+<td>
+
+<div class="cust-cell">
+
+<div class="cust-avatar">
+
+${initials(row.customer)}
+
+</div>
+
+${row.customer}
+
+</div>
+
+</td>
+
+<td>
+
+${scoreBar(row.score)}
+
+</td>
+
+<td>
+
+<span class="badge ${
+row.prediction==="Likely To Leave"
+?
+"badge--leave"
+:
+"badge--stay"
+}">
+
+${row.prediction}
+
+</span>
+
+</td>
+
+<td>
+
+${formatDate(row.date)}
+
+</td>
+
+</tr>
+
+`).join("");
+
+}
+
+
+async function loadDashboard(){
+
+try{
+
+const response=
+await fetch(
+"http://localhost:5000/api/dashboard"
+);
+
+if(!response.ok){
+
+throw new Error();
+
+}
+
+const data=
+await response.json();
+
+renderKpis(
+data
+);
+
+renderRecent(
+data.recent
+);
+
+}
+
+catch(error){
+
+console.log(error);
+
+document
+.getElementById(
+"kpiGrid"
+)
+.innerHTML=
+
+`
+
+<div class="empty-state">
+
+Dashboard Load Failed
+
+</div>
+
+`;
+
+document
+.getElementById(
+"recentBody"
+)
+.innerHTML=
+
+`
+
+<tr>
+
+<td colspan="4">
+
+Unable to fetch data
+
+</td>
+
+</tr>
+
+`;
+
+}
+
+}
+
+loadDashboard();
+
+</script>
+
+</body>
+
+</html>

@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Prediction Result
+</title>
+
+<link
+rel="stylesheet"
+href="css/styles.css">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<main class="page">
+
+<div class="page-head">
+
+<h1>
+Prediction Result
+</h1>
+
+<p>
+Machine Learning churn analysis
+</p>
+
+</div>
+
+
+<section class="result-grid">
+
+<div class="card result-main">
+
+<div
+id="predBadge"
+class="badge">
+
+Loading
+
+</div>
+
+
+<h2 id="customerName">
+
+Customer
+
+</h2>
+
+
+<div class="gauge">
+
+<svg
+width="180"
+height="180">
+
+<circle
+cx="90"
+cy="90"
+r="78"
+fill="none"
+stroke="var(--border)"
+stroke-width="16">
+</circle>
+
+<circle
+id="gaugeArc"
+cx="90"
+cy="90"
+r="78"
+fill="none"
+stroke-width="16"
+stroke-linecap="round"
+transform="rotate(-90 90 90)">
+</circle>
+
+</svg>
+
+
+<div class="gauge__center">
+
+<div
+class="gauge__score"
+id="gaugeScore">
+
+0%
+
+</div>
+
+<div class="gauge__label">
+
+Risk Score
+
+</div>
+
+</div>
+
+</div>
+
+
+<div
+id="riskCategory"
+class="badge">
+
+Category
+
+</div>
+
+
+<p
+id="predictionText"
+class="mt-16">
+
+Waiting...
+
+</p>
+
+
+<div class="form-actions">
+
+<button
+id="saveBtn"
+class="btn btn--primary">
+
+Save Prediction
+
+</button>
+
+<a
+href="new-prediction.html"
+class="btn btn--ghost">
+
+New Prediction
+
+</a>
+
+<a
+href="index.html"
+class="btn btn--ghost">
+
+Dashboard
+
+</a>
+
+</div>
+
+</div>
+
+
+
+<div class="card">
+
+<div class="card__head">
+
+<h2>
+
+Top Contributing Factors
+
+</h2>
+
+</div>
+
+<div id="factorList">
+
+</div>
+
+</div>
+
+</section>
+
+</main>
+
+
+<script src="js/common.js"></script>
+
+<script>
+
+buildNavbar("history");
+
+let result=null;
+
+try{
+
+result=
+JSON.parse(
+sessionStorage.getItem(
+"churnResult"
+)
+);
+
+}catch{
+
+result=null;
+
+}
+
+
+if(!result){
+
+window.location.href=
+"new-prediction.html";
+
+}
+
+
+result.score=
+Number(
+result.score
+)||0;
+
+
+if(
+!Array.isArray(
+result.factors
+)
+){
+
+result.factors=[];
+
+}
+
+
+document
+.getElementById(
+"customerName"
+)
+.textContent=
+result.customer;
+
+
+
+const leave=
+
+result.prediction===
+
+"Likely To Leave";
+
+
+
+const badge=
+
+document
+.getElementById(
+"predBadge"
+);
+
+
+badge.textContent=
+
+result.prediction;
+
+
+badge.className=
+
+`badge ${
+leave
+?
+"badge--leave"
+:
+"badge--stay"
+}`;
+
+
+
+const risk=
+
+document
+.getElementById(
+"riskCategory"
+);
+
+
+risk.textContent=
+
+result.category;
+
+
+risk.className=
+
+`badge ${categoryClass(result.category)}`;
+
+
+
+document
+.getElementById(
+"predictionText"
+)
+.textContent=
+
+leave
+
+?
+
+"Customer shows strong churn indicators."
+
+:
+
+"Customer retention probability appears healthy.";
+
+
+
+/* Gauge */
+
+const circle=490;
+
+const arc=
+document.getElementById(
+"gaugeArc"
+);
+
+arc.setAttribute(
+"stroke",
+scoreColor(
+result.score
+)
+);
+
+arc.style.strokeDasharray=
+circle;
+
+arc.style.strokeDashoffset=
+circle;
+
+
+setTimeout(()=>{
+
+arc.style.transition=
+"1s ease";
+
+arc.style.strokeDashoffset=
+
+circle-
+
+(
+circle*
+result.score/
+100
+);
+
+},150);
+
+
+
+let current=0;
+
+const gauge=
+document.getElementById(
+"gaugeScore"
+);
+
+
+const timer=
+setInterval(()=>{
+
+current+=2;
+
+if(
+current>=
+result.score
+){
+
+current=
+result.score;
+
+clearInterval(
+timer
+);
+
+}
+
+gauge.textContent=
+current+"%";
+
+},20);
+
+
+
+/* Factors */
+
+const factorBox=
+document.getElementById(
+"factorList"
+);
+
+if(
+result.factors.length===0
+){
+
+factorBox.innerHTML=
+
+`
+
+<div class="empty-state">
+
+No factors available
+
+</div>
+
+`;
+
+}
+
+else{
+
+factorBox.innerHTML=
+
+result.factors
+.map(
+f=>`
+
+<div class="factor">
+
+<div>
+
+<div class="factor__name">
+
+${f.name}
+
+</div>
+
+<div class="factor__note">
+
+${f.note}
+
+</div>
+
+</div>
+
+<span class="badge">
+
+${f.impact}
+
+</span>
+
+</div>
+
+`
+)
+
+.join("");
+
+}
+
+
+
+/* SAVE TO DATABASE */
+
+document
+.getElementById(
+"saveBtn"
+)
+.onclick=
+
+async function(){
+
+try{
+
+this.disabled=true;
+
+this.textContent=
+"Saving...";
+
+
+const res=
+await fetch(
+
+"http://localhost:5000/api/predictions/save",
+
+{
+
+method:"POST",
+
+headers:{
+
+"Content-Type":
+"application/json"
+
+},
+
+body:
+JSON.stringify({
+
+customer:
+result.customer,
+
+prediction:
+result.prediction,
+
+score:
+result.score,
+
+category:
+result.category
+
+})
+
+}
+
+);
+
+
+if(
+!res.ok
+){
+
+throw new Error();
+
+}
+
+
+/* local */
+
+localStorage.setItem(
+
+"savedPrediction",
+
+JSON.stringify(
+result
+)
+
+);
+
+
+this.textContent=
+"Saved ✓";
+
+
+alert(
+"Prediction Saved"
+);
+
+
+setTimeout(()=>{
+
+window.location.href=
+"history.html";
+
+},700);
+
+
+}catch{
+
+this.disabled=false;
+
+this.textContent=
+"Save Prediction";
+
+alert(
+"Save Failed"
+);
+
+}
+
+};
+
+</script>
+
+</body>
+
+</html>

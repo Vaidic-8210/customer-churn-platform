@@ -1,0 +1,14 @@
+node_modules/
+.env
+__pycache__/
+venv/
+.venv/
+*.pyc
+dist/
+build/
+coverage/
+
+backend/node_modules/
+ml_service/venv/
+
+.DS_Store

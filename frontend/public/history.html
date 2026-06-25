@@ -1,0 +1,387 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+name="viewport"
+content="width=device-width, initial-scale=1.0">
+
+<title>
+Prediction History
+</title>
+
+<link
+rel="stylesheet"
+href="css/styles.css">
+
+<link
+href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
+rel="stylesheet">
+
+</head>
+
+<body>
+
+<div id="navbar"></div>
+
+<main class="page">
+
+<div class="page-head">
+
+<h1>
+Prediction History
+</h1>
+
+<p>
+View and manage saved customer predictions
+</p>
+
+</div>
+
+
+<div class="card">
+
+<div class="toolbar">
+
+<div class="search">
+
+<input
+id="searchInput"
+type="text"
+placeholder="Search customer">
+
+</div>
+
+
+<button
+id="exportBtn"
+class="btn btn--ghost">
+
+Export CSV
+
+</button>
+
+</div>
+
+
+<div class="table-wrap">
+
+<table>
+
+<thead>
+
+<tr>
+
+<th>Customer</th>
+<th>Prediction</th>
+<th>Score</th>
+<th>Category</th>
+<th>Date</th>
+
+</tr>
+
+</thead>
+
+<tbody id="historyBody">
+
+<tr>
+
+<td colspan="5">
+
+<div class="loading">
+
+Loading...
+
+</div>
+
+</td>
+
+</tr>
+
+</tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</main>
+
+
+<script src="js/common.js"></script>
+
+<script>
+
+buildNavbar("history");
+
+let rows=[];
+
+
+/* LOAD FROM DB */
+
+async function loadHistory(){
+
+try{
+
+const response=
+await fetch(
+"http://localhost:5000/api/history"
+);
+
+if(!response.ok){
+
+throw new Error();
+
+}
+
+rows=
+await response.json();
+
+renderTable(rows);
+
+}
+
+catch(err){
+
+console.log(err);
+
+document
+.getElementById(
+"historyBody"
+)
+.innerHTML=
+
+`
+
+<tr>
+
+<td colspan="5">
+
+No history found
+
+</td>
+
+</tr>
+
+`;
+
+}
+
+}
+
+
+
+/* TABLE */
+
+function renderTable(data){
+
+const body=
+document.getElementById(
+"historyBody"
+);
+
+if(!data.length){
+
+body.innerHTML=
+
+`
+
+<tr>
+
+<td colspan="5">
+
+No predictions
+
+</td>
+
+</tr>
+
+`;
+
+return;
+
+}
+
+
+body.innerHTML=
+
+data.map(item=>`
+
+<tr>
+
+<td>
+
+${item.customer}
+
+</td>
+
+<td>
+
+<span class="badge ${
+item.prediction==="Likely To Leave"
+?
+"badge--leave"
+:
+"badge--stay"
+}">
+
+${item.prediction}
+
+</span>
+
+</td>
+
+<td>
+
+${item.score}%
+
+</td>
+
+<td>
+
+<span class="badge ${categoryClass(item.category)}">
+
+${item.category}
+
+</span>
+
+</td>
+
+<td>
+
+${formatDate(item.date)}
+
+</td>
+
+</tr>
+
+`).join("");
+
+}
+
+
+
+/* SEARCH */
+
+document
+.getElementById(
+"searchInput"
+)
+.addEventListener(
+"input",
+
+e=>{
+
+const q=
+e.target.value
+.toLowerCase();
+
+renderTable(
+
+rows.filter(
+
+x=>
+
+x.customer
+.toLowerCase()
+.includes(q)
+
+)
+
+);
+
+}
+
+);
+
+
+
+/* EXPORT */
+
+document
+.getElementById(
+"exportBtn"
+)
+.onclick=()=>{
+
+if(!rows.length){
+
+alert(
+"No data"
+);
+
+return;
+
+}
+
+let csv=
+
+[
+[
+"Customer",
+"Prediction",
+"Score",
+"Category",
+"Date"
+],
+
+...rows.map(r=>[
+
+r.customer,
+
+r.prediction,
+
+r.score,
+
+r.category,
+
+r.date
+
+])
+
+]
+
+.map(
+r=>r.join(",")
+)
+
+.join("\n");
+
+
+const blob=
+new Blob(
+[csv]
+);
+
+const url=
+URL.createObjectURL(
+blob
+);
+
+const a=
+document.createElement(
+"a"
+);
+
+a.href=url;
+
+a.download=
+"history.csv";
+
+a.click();
+
+};
+
+
+
+loadHistory();
+
+</script>
+
+</body>
+
+</html>
